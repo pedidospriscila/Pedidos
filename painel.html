@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Priscila – Vendas</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink:#e8427c; --pink-light:#fce8f0; --pink-dark:#c0305f;
+    --cream:#fdf8f5; --dark:#1a1020; --gray:#7a6e78; --border:#f0d9e8;
+    --green:#27ae60; --blue:#2980b9;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',sans-serif; background:#f5f0f8; color:var(--dark); min-height:100vh; }
+
+  header {
+    background:linear-gradient(135deg,#1a1020,#3d1535);
+    padding:24px 28px; display:flex; align-items:center; justify-content:space-between;
+  }
+  header h1 { font-family:'Playfair Display',serif; font-size:1.4rem; color:#fff; }
+  header p { color:rgba(255,255,255,0.55); font-size:0.78rem; margin-top:2px; }
+  .header-badge { background:var(--pink); color:#fff; border-radius:8px; padding:6px 14px; font-size:0.78rem; font-weight:600; }
+
+  main { max-width:1100px; margin:0 auto; padding:24px 20px 40px; }
+
+  /* SETUP ALERT */
+  .setup-alert {
+    background:#fff8e1; border:1.5px solid #f9c74f; border-radius:12px;
+    padding:16px 20px; margin-bottom:24px; font-size:0.85rem; line-height:1.6; color:#5a4a00;
+  }
+  .setup-alert strong { display:block; margin-bottom:4px; font-size:0.9rem; }
+  .setup-alert code { background:#f0e68c; padding:2px 6px; border-radius:4px; font-family:monospace; font-size:0.82rem; }
+
+  /* STATS */
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:24px; }
+  .stat-card {
+    background:#fff; border-radius:14px; padding:18px 20px;
+    border:1.5px solid var(--border); text-align:center;
+  }
+  .stat-value { font-family:'Playfair Display',serif; font-size:1.6rem; color:var(--pink-dark); font-weight:700; }
+  .stat-label { font-size:0.73rem; color:var(--gray); margin-top:4px; }
+
+  /* TABS */
+  .tabs { display:flex; gap:4px; margin-bottom:18px; }
+  .tab-btn {
+    padding:9px 18px; border:1.5px solid var(--border); border-radius:10px;
+    background:#fff; font-family:'DM Sans',sans-serif; font-size:0.82rem;
+    font-weight:600; color:var(--gray); cursor:pointer; transition:all 0.2s;
+  }
+  .tab-btn.active { background:var(--pink-dark); color:#fff; border-color:var(--pink-dark); }
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+
+  /* FILTERS */
+  .filters { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+  .filter-input {
+    padding:9px 14px; border:1.5px solid var(--border); border-radius:10px;
+    font-family:'DM Sans',sans-serif; font-size:0.85rem; background:#fff;
+    color:var(--dark); outline:none; flex:1; min-width:160px;
+  }
+  .filter-input:focus { border-color:var(--pink); }
+
+  /* TABLE */
+  .table-wrap { background:#fff; border-radius:14px; border:1.5px solid var(--border); overflow:hidden; }
+  table { width:100%; border-collapse:collapse; }
+  th { background:var(--pink-dark); color:#fff; padding:11px 14px; text-align:left; font-size:0.78rem; font-weight:600; letter-spacing:0.03em; }
+  td { padding:11px 14px; border-bottom:1px solid var(--border); font-size:0.82rem; vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:#fdf5f9; }
+  .badge-total { font-family:'Playfair Display',serif; font-size:0.95rem; color:var(--pink-dark); font-weight:700; }
+  .client-name { font-weight:600; }
+  .order-items { font-size:0.75rem; color:var(--gray); line-height:1.6; }
+  .order-items span { display:block; }
+
+  /* LOADING */
+  .loading-state { text-align:center; padding:50px 20px; color:var(--gray); }
+  .spinner { width:30px; height:30px; border:3px solid var(--border); border-top-color:var(--pink); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  .empty-table { text-align:center; padding:40px; color:var(--gray); font-size:0.87rem; }
+
+  /* PRODUCTS TAB */
+  .prod-table td:first-child { font-family:monospace; font-size:0.78rem; color:var(--gray); }
+  .prod-price { font-weight:600; color:var(--green); }
+  .prod-edit { background:transparent; border:1.5px solid var(--border); border-radius:7px; padding:5px 10px; font-size:0.75rem; font-family:'DM Sans',sans-serif; color:var(--pink-dark); cursor:pointer; }
+  .prod-edit:hover { background:var(--pink-light); }
+
+  /* DELETE BUTTONS */
+  .del-btn {
+    background:transparent; border:1.5px solid #f5c0c0; border-radius:7px;
+    padding:5px 9px; font-size:0.75rem; font-family:'DM Sans',sans-serif;
+    color:#c0305f; cursor:pointer; white-space:nowrap; transition:all 0.15s;
+  }
+  .del-btn:hover { background:#fff0f0; border-color:#e8427c; }
+  .clear-all-wrap { margin-bottom:12px; display:flex; justify-content:flex-end; }
+  .clear-all-btn {
+    display:inline-flex; align-items:center; gap:6px;
+    background:#fff0f0; border:1.5px solid #f5c0c0; border-radius:9px;
+    padding:8px 16px; font-size:0.8rem; font-family:'DM Sans',sans-serif;
+    color:#c0305f; cursor:pointer; font-weight:600; transition:all 0.15s;
+  }
+  .clear-all-btn:hover { background:#ffe0e0; }
+
+  @media(max-width:600px) {
+    header { flex-direction:column; align-items:flex-start; gap:10px; }
+    .stats { grid-template-columns:1fr 1fr; }
+    th, td { padding:9px 10px; font-size:0.77rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🌸 Painel – Produtos Priscila</h1>
+    <p>Visão geral de pedidos e clientes</p>
+  </div>
+  <div class="header-badge">Área Administrativa</div>
+</header>
+
+<main>
+
+  <div class="setup-alert" id="setup-alert" style="display:none">
+    ⚙️ <strong>Configure o ID da planilha para ver os dados reais</strong>
+    Abra este arquivo em um editor de texto e substitua <code>SEU_ID_AQUI</code> pelo ID da sua Google Planilha.
+    Siga o guia <strong>CONFIGURACAO.html</strong> para o passo a passo completo.
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat-card"><div class="stat-value" id="stat-total-pedidos">–</div><div class="stat-label">Pedidos realizados</div></div>
+    <div class="stat-card"><div class="stat-value" id="stat-total-valor">–</div><div class="stat-label">Volume total</div></div>
+    <div class="stat-card"><div class="stat-value" id="stat-total-clientes">–</div><div class="stat-label">Clientes únicos</div></div>
+    <div class="stat-card"><div class="stat-value" id="stat-total-produtos">–</div><div class="stat-label">Produtos no catálogo</div></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('pedidos',this)">📦 Pedidos</button>
+    <button class="tab-btn" onclick="switchTab('clientes',this)">👥 Clientes</button>
+    <button class="tab-btn" onclick="switchTab('produtos',this)">🏷️ Produtos</button>
+  </div>
+
+  <!-- TAB PEDIDOS -->
+  <div id="tab-pedidos" class="tab-content active">
+    <div class="filters">
+      <input type="text" class="filter-input" id="filter-pedidos" placeholder="🔍 Buscar por cliente ou produto…" oninput="renderOrders()">
+      <input type="date" class="filter-input" id="filter-date" style="max-width:180px" onchange="renderOrders()">
+    </div>
+    <div class="clear-all-wrap">
+      <button class="clear-all-btn" onclick="clearAllOrders()">🗑️ Apagar todos os pedidos</button>
+    </div>
+    <div class="table-wrap">
+      <div id="orders-loading" class="loading-state"><div class="spinner"></div>Carregando pedidos…</div>
+      <table id="orders-table" style="display:none">
+        <thead><tr><th>Data</th><th>Cliente</th><th>Itens</th><th>Total</th><th></th></tr></thead>
+        <tbody id="orders-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB CLIENTES -->
+  <div id="tab-clientes" class="tab-content">
+    <div class="filters">
+      <input type="text" class="filter-input" id="filter-clientes" placeholder="🔍 Buscar cliente…" oninput="renderClients()">
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Cliente</th><th>Pedidos</th><th>Último pedido</th><th>Total gasto</th><th></th></tr></thead>
+        <tbody id="clients-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB PRODUTOS -->
+  <div id="tab-produtos" class="tab-content">
+    <div class="filters">
+      <input type="text" class="filter-input" id="filter-produtos" placeholder="🔍 Buscar produto…" oninput="renderProducts()">
+    </div>
+    <div class="table-wrap">
+      <div id="products-loading" class="loading-state"><div class="spinner"></div>Carregando produtos…</div>
+      <table id="products-table" class="prod-table" style="display:none">
+        <thead><tr><th>Código</th><th>Produto</th><th>Preço unitário</th><th></th></tr></thead>
+        <tbody id="products-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ══════════════════════════════════════════════════
+// ⚙️ CONFIGURAÇÃO
+const SHEET_ID            = '1q8E1PE5jix4nPsvaZd1g61rLI2jLflqfsXt7_YPwwoE';
+const SHEET_PRODUCTS_NAME = 'Produtos';
+const SHEET_ORDERS_NAME   = 'Pedidos';
+// ══════════════════════════════════════════════════
+
+let allOrders   = [];
+let allProducts = [];
+
+function fmt(v) { return Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+async function fetchSheet(sheetName) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}&t=${Date.now()}`;
+  const res  = await fetch(url, { cache: 'no-store' });
+  const text = await res.text();
+  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+  return json.table.rows;
+}
+
+async function loadAll() {
+  try {
+    const prodRows = await fetchSheet(SHEET_PRODUCTS_NAME);
+    allProducts = prodRows.slice(1).map(r => ({
+      code:  (r.c[0]?.v ?? '').toString().trim(),
+      name:  (r.c[1]?.v ?? '').toString().trim(),
+      price: parseFloat(r.c[2]?.v ?? 0) || 0,
+    })).filter(p => p.name);
+
+    const ordRows = await fetchSheet(SHEET_ORDERS_NAME);
+    const sheetOrders = ordRows.slice(1).map(r => ({
+      date:   (r.c[0]?.v ?? '').toString().trim(),
+      client: (r.c[1]?.v ?? '').toString().trim(),
+      items:  (r.c[2]?.v ?? '').toString().trim(),
+      total:  parseFloat((r.c[3]?.v ?? '0').toString().replace(/[^\d,.]/g,'').replace(',','.')) || 0,
+    })).filter(o => o.client);
+
+    allOrders = sheetOrders;
+    document.getElementById('setup-alert').style.display = 'none';
+  } catch(e) {
+    console.error('Erro ao carregar planilha:', e);
+    document.getElementById('setup-alert').innerHTML = `⚠️ <strong>Erro ao carregar dados da planilha</strong><br>Verifique se a planilha está publicada na web. Erro: ${e.message}`;
+    document.getElementById('setup-alert').style.display = 'block';
+    allOrders = [];
+    allProducts = [];
+  }
+  renderAll();
+}
+
+function loadDemoData(saved) {
+  allProducts = [
+    {code:'40000006',name:'AMACIANTE CONCENTRADO UAU FLORES E SONHOS 1L',price:10.20},
+    {code:'40000055',name:'DESENGORDURANTE UAU COZINHA LIMAO 2X500ML',price:8.59},
+    {code:'40000078',name:'LAVA ROUPAS LIQUIDO UAU ACTIVE 3L',price:21.86},
+    {code:'40000152',name:'PASSA ROUPAS UAU SEM PASSAR GATILHO 500ML',price:13.31},
+    {code:'61033364',name:'SHAMPOO PALMOLIVE ANTICOCEIRA MEN 350ML',price:12.88},
+  ];
+  const demo = [
+    {date:'09/04/2026 10:30', client:'Maria Silva',    items:'LAVA ROUPAS LIQUIDO UAU ACTIVE 3L (2×)\nAMACIANTE CONCENTRADO UAU (3×)', total:64.32},
+    {date:'09/04/2026 14:15', client:'Ana Souza',      items:'PASSA ROUPAS UAU SEM PASSAR GATILHO (1×)\nSHAMPOO PALMOLIVE ANTICOCEIRA (2×)', total:39.07},
+    {date:'08/04/2026 09:00', client:'Maria Silva',    items:'DESENGORDURANTE UAU COZINHA LIMAO (4×)', total:34.36},
+    {date:'07/04/2026 16:45', client:'Carla Ferreira', items:'LAVA ROUPAS LIQUIDO UAU ACTIVE 3L (1×)', total:21.86},
+  ];
+  allOrders = saved ? JSON.parse(saved) : demo;
+  renderAll();
+}
+
+function renderAll() {
+  renderOrders();
+  renderClients();
+  renderProducts();
+  updateStats();
+}
+
+function updateStats() {
+  document.getElementById('stat-total-pedidos').textContent  = allOrders.length;
+  document.getElementById('stat-total-valor').textContent    = fmt(allOrders.reduce((s,o) => s+o.total,0));
+  const uniq = new Set(allOrders.map(o => o.client.toLowerCase()));
+  document.getElementById('stat-total-clientes').textContent = uniq.size;
+  document.getElementById('stat-total-produtos').textContent = allProducts.length;
+}
+
+function renderOrders() {
+  const q    = (document.getElementById('filter-pedidos')?.value || '').toLowerCase();
+  const date = document.getElementById('filter-date')?.value || '';
+  const loading = document.getElementById('orders-loading');
+  const table   = document.getElementById('orders-table');
+  loading.style.display = 'none';
+  table.style.display   = '';
+
+  // índices reais no allOrders para manter referência ao excluir
+  const filtered = allOrders
+    .map((o, i) => ({ ...o, _idx: i }))
+    .filter(o =>
+      (!q || o.client.toLowerCase().includes(q) || o.items.toLowerCase().includes(q)) &&
+      (!date || o.date.includes(date.split('-').reverse().join('/')))
+    );
+
+  const tbody = document.getElementById('orders-body');
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-table">Nenhum pedido encontrado.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filtered.map(o => `
+    <tr id="orow-${o._idx}">
+      <td style="white-space:nowrap;color:var(--gray);font-size:0.76rem">${o.date}</td>
+      <td class="client-name">${o.client}</td>
+      <td class="order-items">${o.items.split('\n').map(i => `<span>• ${i}</span>`).join('')}</td>
+      <td class="badge-total">${fmt(o.total)}</td>
+      <td><button class="del-btn" onclick="deleteOrder(${o._idx})">🗑️ Excluir</button></td>
+    </tr>`).join('');
+}
+
+function deleteOrder(idx) {
+  if (!confirm('Excluir este pedido?')) return;
+  allOrders.splice(idx, 1);
+  saveOrders();
+  renderAll();
+}
+
+function clearAllOrders() {
+  if (!confirm('Apagar TODOS os pedidos? Esta ação não pode ser desfeita.')) return;
+  allOrders = [];
+  saveOrders();
+  renderAll();
+}
+
+function deleteClientOrders(clientName) {
+  if (!confirm(`Excluir todos os pedidos de "${clientName}"?`)) return;
+  allOrders = allOrders.filter(o => o.client.toLowerCase() !== clientName.toLowerCase());
+  saveOrders();
+  renderAll();
+}
+
+function saveOrders() {
+  localStorage.setItem('painel_orders', JSON.stringify(allOrders));
+}
+
+function renderClients() {
+  const q = (document.getElementById('filter-clientes')?.value || '').toLowerCase();
+  const map = {};
+  allOrders.forEach(o => {
+    const k = o.client.toLowerCase();
+    if (!map[k]) map[k] = { name: o.client, count: 0, total: 0, last: '' };
+    map[k].count++;
+    map[k].total += o.total;
+    if (!map[k].last || o.date > map[k].last) map[k].last = o.date;
+  });
+
+  const clients = Object.values(map)
+    .filter(c => !q || c.name.toLowerCase().includes(q))
+    .sort((a,b) => b.total - a.total);
+
+  const tbody = document.getElementById('clients-body');
+  if (!clients.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-table">Nenhum cliente encontrado.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = clients.map(c => `
+    <tr>
+      <td class="client-name">${c.name}</td>
+      <td style="text-align:center">${c.count}</td>
+      <td style="color:var(--gray);font-size:0.78rem">${c.last}</td>
+      <td class="badge-total">${fmt(c.total)}</td>
+      <td><button class="del-btn" onclick="deleteClientOrders('${c.name.replace(/'/g,"\\'")}')">🗑️ Excluir</button></td>
+    </tr>`).join('');
+}
+
+function renderProducts() {
+  const q = (document.getElementById('filter-produtos')?.value || '').toLowerCase();
+  const loading = document.getElementById('products-loading');
+  const table   = document.getElementById('products-table');
+  loading.style.display = 'none';
+  table.style.display   = '';
+
+  const filtered = allProducts
+    .filter(p => !q || p.name.toLowerCase().includes(q) || p.code.toLowerCase().includes(q))
+    .sort((a,b) => a.name.localeCompare(b.name));
+
+  const tbody = document.getElementById('products-body');
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="4" class="empty-table">Nenhum produto encontrado.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filtered.map(p => `
+    <tr>
+      <td>${p.code}</td>
+      <td>${p.name}</td>
+      <td class="prod-price">${p.price > 0 ? fmt(p.price) : 'A consultar'}</td>
+      <td><button class="prod-edit" onclick="alert('Edite diretamente na sua Google Planilha — aba Produtos.')">Editar na Planilha</button></td>
+    </tr>`).join('');
+}
+
+loadAll();
+</script>
+</body>
+</html>
