@@ -3,707 +3,394 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Produtos Priscila</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>Painel Priscila – Vendas</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --pink: #e8427c;
-    --pink-light: #fce8f0;
-    --pink-dark: #c0305f;
-    --cream: #fdf8f5;
-    --dark: #1a1020;
-    --gray: #7a6e78;
-    --border: #f0d9e8;
-    --green: #25d366;
-    --shadow: 0 4px 24px rgba(232,66,124,0.10);
+    --pink:#e8427c; --pink-light:#fce8f0; --pink-dark:#c0305f;
+    --cream:#fdf8f5; --dark:#1a1020; --gray:#7a6e78; --border:#f0d9e8;
+    --green:#27ae60; --blue:#2980b9;
   }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--dark); min-height:100vh; }
+  body { font-family:'DM Sans',sans-serif; background:#f5f0f8; color:var(--dark); min-height:100vh; }
 
-  /* HEADER */
   header {
-    background:linear-gradient(135deg,#e8427c 0%,#c0305f 60%,#8b1a40 100%);
-    padding:28px 20px 20px; text-align:center; position:relative; overflow:hidden;
+    background:linear-gradient(135deg,#1a1020,#3d1535);
+    padding:24px 28px; display:flex; align-items:center; justify-content:space-between;
   }
-  header::before { content:''; position:absolute; top:-40px; right:-40px; width:160px; height:160px; background:rgba(255,255,255,0.07); border-radius:50%; }
-  header::after  { content:''; position:absolute; bottom:-50px; left:-30px; width:200px; height:200px; background:rgba(255,255,255,0.05); border-radius:50%; }
-  header h1 { font-family:'Playfair Display',serif; font-size:1.8rem; color:#fff; position:relative; z-index:1; }
-  header p  { color:rgba(255,255,255,0.80); font-size:0.82rem; margin-top:4px; font-weight:300; position:relative; z-index:1; }
+  header h1 { font-family:'Playfair Display',serif; font-size:1.4rem; color:#fff; }
+  header p { color:rgba(255,255,255,0.55); font-size:0.78rem; margin-top:2px; }
+  .header-badge { background:var(--pink); color:#fff; border-radius:8px; padding:6px 14px; font-size:0.78rem; font-weight:600; }
+
+  main { max-width:1100px; margin:0 auto; padding:24px 20px 40px; }
+
+  /* SETUP ALERT */
+  .setup-alert {
+    background:#fff8e1; border:1.5px solid #f9c74f; border-radius:12px;
+    padding:16px 20px; margin-bottom:24px; font-size:0.85rem; line-height:1.6; color:#5a4a00;
+  }
+  .setup-alert strong { display:block; margin-bottom:4px; font-size:0.9rem; }
+  .setup-alert code { background:#f0e68c; padding:2px 6px; border-radius:4px; font-family:monospace; font-size:0.82rem; }
+
+  /* STATS */
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:24px; }
+  .stat-card {
+    background:#fff; border-radius:14px; padding:18px 20px;
+    border:1.5px solid var(--border); text-align:center;
+  }
+  .stat-value { font-family:'Playfair Display',serif; font-size:1.6rem; color:var(--pink-dark); font-weight:700; }
+  .stat-label { font-size:0.73rem; color:var(--gray); margin-top:4px; }
 
   /* TABS */
-  .tabs { display:flex; background:#fff; border-bottom:2px solid var(--border); position:sticky; top:0; z-index:50; }
+  .tabs { display:flex; gap:4px; margin-bottom:18px; }
   .tab-btn {
-    flex:1; padding:13px 8px; border:none; background:transparent;
-    font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:600;
-    color:var(--gray); cursor:pointer; transition:all 0.2s;
-    border-bottom:2px solid transparent; margin-bottom:-2px;
+    padding:9px 18px; border:1.5px solid var(--border); border-radius:10px;
+    background:#fff; font-family:'DM Sans',sans-serif; font-size:0.82rem;
+    font-weight:600; color:var(--gray); cursor:pointer; transition:all 0.2s;
   }
-  .tab-btn.active { color:var(--pink-dark); border-bottom-color:var(--pink); }
+  .tab-btn.active { background:var(--pink-dark); color:#fff; border-color:var(--pink-dark); }
   .tab-content { display:none; }
   .tab-content.active { display:block; }
 
-  main { max-width:680px; margin:0 auto; padding:18px 16px 130px; }
+  /* FILTERS */
+  .filters { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+  .filter-input {
+    padding:9px 14px; border:1.5px solid var(--border); border-radius:10px;
+    font-family:'DM Sans',sans-serif; font-size:0.85rem; background:#fff;
+    color:var(--dark); outline:none; flex:1; min-width:160px;
+  }
+  .filter-input:focus { border-color:var(--pink); }
+
+  /* TABLE */
+  .table-wrap { background:#fff; border-radius:14px; border:1.5px solid var(--border); overflow:hidden; }
+  table { width:100%; border-collapse:collapse; }
+  th { background:var(--pink-dark); color:#fff; padding:11px 14px; text-align:left; font-size:0.78rem; font-weight:600; letter-spacing:0.03em; }
+  td { padding:11px 14px; border-bottom:1px solid var(--border); font-size:0.82rem; vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:#fdf5f9; }
+  .badge-total { font-family:'Playfair Display',serif; font-size:0.95rem; color:var(--pink-dark); font-weight:700; }
+  .client-name { font-weight:600; }
+  .order-items { font-size:0.75rem; color:var(--gray); line-height:1.6; }
+  .order-items span { display:block; }
 
   /* LOADING */
-  .loading-state { text-align:center; padding:40px 20px; color:var(--gray); }
-  .spinner { width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--pink); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px; }
+  .loading-state { text-align:center; padding:50px 20px; color:var(--gray); }
+  .spinner { width:30px; height:30px; border:3px solid var(--border); border-top-color:var(--pink); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px; }
   @keyframes spin { to { transform:rotate(360deg); } }
 
-  /* NAME */
-  .name-section { margin-bottom:18px; }
-  .field-label { display:block; font-size:0.75rem; font-weight:600; color:var(--pink-dark); margin-bottom:6px; letter-spacing:0.05em; text-transform:uppercase; }
-  .name-input {
-    width:100%; padding:12px 14px; border:1.5px solid var(--border); border-radius:12px;
-    font-family:'DM Sans',sans-serif; font-size:0.95rem; background:#fff; color:var(--dark); outline:none; transition:border-color 0.2s;
-  }
-  .name-input:focus { border-color:var(--pink); box-shadow:0 0 0 3px rgba(232,66,124,0.08); }
+  .empty-table { text-align:center; padding:40px; color:var(--gray); font-size:0.87rem; }
 
-  /* SECTION TITLE */
-  .section-title {
-    font-family:'Playfair Display',serif; font-size:1rem; color:var(--pink-dark);
-    margin:0 0 10px; padding-bottom:6px; border-bottom:2px solid var(--border);
-    display:flex; align-items:center; justify-content:space-between;
-  }
-  .section-title span { font-family:'DM Sans',sans-serif; font-size:0.75rem; color:var(--gray); font-weight:400; }
+  /* PRODUCTS TAB */
+  .prod-table td:first-child { font-family:monospace; font-size:0.78rem; color:var(--gray); }
+  .prod-price { font-weight:600; color:var(--green); }
+  .prod-edit { background:transparent; border:1.5px solid var(--border); border-radius:7px; padding:5px 10px; font-size:0.75rem; font-family:'DM Sans',sans-serif; color:var(--pink-dark); cursor:pointer; }
+  .prod-edit:hover { background:var(--pink-light); }
 
-  /* SELECTED ITEMS */
-  .selected-item {
-    background:#fff; border:1.5px solid var(--border); border-radius:12px;
-    padding:12px 14px; margin-bottom:8px;
-    display:flex; align-items:center; gap:10px;
-    animation:fadeIn 0.2s ease;
+  /* DELETE BUTTONS */
+  .del-btn {
+    background:transparent; border:1.5px solid #f5c0c0; border-radius:7px;
+    padding:5px 9px; font-size:0.75rem; font-family:'DM Sans',sans-serif;
+    color:#c0305f; cursor:pointer; white-space:nowrap; transition:all 0.15s;
   }
-  @keyframes fadeIn { from{opacity:0;transform:translateY(-5px)} to{opacity:1;transform:translateY(0)} }
-  .item-info { flex:1; min-width:0; }
-  .item-code { font-size:0.63rem; color:var(--gray); letter-spacing:0.04em; }
-  .item-name { font-size:0.83rem; font-weight:500; line-height:1.3; }
-  .item-price { font-size:0.82rem; color:var(--pink-dark); font-weight:600; white-space:nowrap; flex-shrink:0; text-align:right; }
-  .item-price small { display:block; font-size:0.68rem; color:var(--gray); font-weight:400; }
+  .del-btn:hover { background:#fff0f0; border-color:#e8427c; }
+  .clear-all-wrap { margin-bottom:12px; display:flex; justify-content:flex-end; }
+  .clear-all-btn {
+    display:inline-flex; align-items:center; gap:6px;
+    background:#fff0f0; border:1.5px solid #f5c0c0; border-radius:9px;
+    padding:8px 16px; font-size:0.8rem; font-family:'DM Sans',sans-serif;
+    color:#c0305f; cursor:pointer; font-weight:600; transition:all 0.15s;
+  }
+  .clear-all-btn:hover { background:#ffe0e0; }
 
-  .qty-control { display:flex; align-items:center; gap:4px; flex-shrink:0; }
-  .qty-btn {
-    width:26px; height:26px; border:1.5px solid var(--border); border-radius:7px;
-    background:var(--cream); cursor:pointer; font-size:1.1rem; font-weight:700;
-    color:var(--pink-dark); display:flex; align-items:center; justify-content:center;
-    transition:all 0.15s; line-height:1;
-  }
-  .qty-btn:hover { background:var(--pink-light); border-color:var(--pink); }
-  .qty-value { width:22px; text-align:center; font-weight:600; font-size:0.88rem; }
-  .remove-btn {
-    width:26px; height:26px; border:none; border-radius:7px; background:var(--pink-light);
-    color:var(--pink-dark); cursor:pointer; display:flex; align-items:center; justify-content:center;
-    font-size:0.9rem; flex-shrink:0; transition:background 0.15s;
-  }
-  .remove-btn:hover { background:#fbd0e0; }
-
-  /* EMPTY */
-  .empty-state { text-align:center; padding:28px 20px; color:var(--gray); font-size:0.87rem; }
-  .empty-state .icon { font-size:2.2rem; margin-bottom:8px; display:block; }
-
-  /* ADD BTN */
-  .btn-add-item {
-    width:100%; padding:13px; border:2px dashed var(--border); border-radius:12px;
-    background:transparent; color:var(--pink-dark); font-family:'DM Sans',sans-serif;
-    font-size:0.9rem; font-weight:600; cursor:pointer;
-    display:flex; align-items:center; justify-content:center; gap:7px; transition:all 0.2s; margin-top:14px;
-  }
-  .btn-add-item:hover { background:var(--pink-light); border-color:var(--pink); }
-
-  /* PIX */
-  .pix-card {
-    background:linear-gradient(135deg,#fce8f0,#fff0f7); border:1.5px solid var(--border);
-    border-radius:14px; padding:16px 18px; margin-top:22px;
-    display:flex; align-items:center; gap:12px;
-  }
-  .pix-icon { font-size:1.7rem; flex-shrink:0; }
-  .pix-info h3 { font-family:'Playfair Display',serif; font-size:0.92rem; color:var(--pink-dark); margin-bottom:3px; }
-  .pix-key { font-size:0.97rem; font-weight:600; color:var(--dark); }
-  .pix-tip { font-size:0.71rem; color:var(--gray); margin-top:2px; }
-  .copy-btn {
-    margin-left:auto; color:#fff; border:none; border-radius:8px;
-    padding:9px 14px; font-size:0.78rem; font-weight:600; cursor:pointer; flex-shrink:0;
-    font-family:'DM Sans',sans-serif; transition:background 0.2s; background:var(--pink);
-  }
-  .copy-btn:hover { background:var(--pink-dark); }
-  .copy-btn.copied { background:#27ae60; }
-
-  /* NOTICE */
-  .notice {
-    margin-top:14px; background:#fff8f0; border:1px solid #f5d9b0;
-    border-radius:10px; padding:11px 14px; font-size:0.76rem; color:#7a5e30;
-    display:flex; gap:8px; align-items:flex-start; line-height:1.45;
-  }
-
-  /* HISTORY TAB */
-  .history-item {
-    background:#fff; border:1.5px solid var(--border); border-radius:12px;
-    padding:14px 16px; margin-bottom:10px;
-  }
-  .history-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:8px; }
-  .history-header-left { display:flex; flex-direction:column; gap:2px; }
-  .history-date { font-size:0.75rem; color:var(--gray); }
-  .history-total { font-family:'Playfair Display',serif; font-size:1rem; color:var(--pink-dark); font-weight:700; }
-  .history-products { font-size:0.78rem; color:var(--dark); line-height:1.7; }
-  .history-products span { display:block; }
-  .history-empty { text-align:center; padding:40px 20px; color:var(--gray); font-size:0.87rem; }
-  .history-empty .icon { font-size:2rem; display:block; margin-bottom:8px; }
-  .history-del-btn {
-    flex-shrink:0; background:var(--pink-light); border:none; border-radius:8px;
-    width:30px; height:30px; cursor:pointer; color:var(--pink-dark);
-    display:flex; align-items:center; justify-content:center; font-size:0.9rem;
-    transition:background 0.15s;
-  }
-  .history-del-btn:hover { background:#fbd0e0; }
-  .history-clear-btn {
-    display:block; width:100%; margin-top:14px; padding:11px;
-    border:1.5px solid var(--border); border-radius:10px; background:transparent;
-    color:var(--gray); font-family:'DM Sans',sans-serif; font-size:0.82rem;
-    font-weight:500; cursor:pointer; transition:all 0.2s;
-  }
-  .history-clear-btn:hover { background:#fff0f0; border-color:#e8a0a0; color:#c0305f; }
-
-  /* MODAL */
-  .modal-overlay {
-    display:none; position:fixed; inset:0;
-    background:rgba(26,16,32,0.6); z-index:200; align-items:flex-end; justify-content:center;
-  }
-  .modal-overlay.open { display:flex; }
-  .modal {
-    background:#fff; width:100%; max-width:680px; border-radius:20px 20px 0 0;
-    max-height:82vh; display:flex; flex-direction:column; animation:slideUp 0.25s ease;
-  }
-  @keyframes slideUp { from{transform:translateY(60px);opacity:0} to{transform:translateY(0);opacity:1} }
-  .modal-header {
-    padding:16px 20px 12px; display:flex; align-items:center; justify-content:space-between;
-    border-bottom:1.5px solid var(--border); flex-shrink:0;
-  }
-  .modal-header h2 { font-family:'Playfair Display',serif; font-size:1.05rem; color:var(--dark); }
-  .modal-close {
-    width:30px; height:30px; border:none; border-radius:8px;
-    background:var(--pink-light); color:var(--pink-dark); font-size:1.1rem;
-    cursor:pointer; display:flex; align-items:center; justify-content:center;
-  }
-  .modal-search { padding:10px 20px; flex-shrink:0; }
-  .search-input {
-    width:100%; padding:10px 14px 10px 36px; border:1.5px solid var(--border); border-radius:10px;
-    font-family:'DM Sans',sans-serif; font-size:0.88rem;
-    background:var(--cream) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%237a6e78' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 12px center;
-    color:var(--dark); outline:none; transition:border-color 0.2s;
-  }
-  .search-input:focus { border-color:var(--pink); }
-  .modal-list { overflow-y:auto; padding:0 20px 20px; flex:1; }
-  .modal-product {
-    padding:12px 0; border-bottom:1px solid var(--border);
-    display:flex; align-items:center; gap:10px; cursor:pointer;
-    transition:opacity 0.15s;
-  }
-  .modal-product:last-child { border-bottom:none; }
-  .modal-prod-info { flex:1; }
-  .modal-prod-code { font-size:0.63rem; color:var(--gray); letter-spacing:0.04em; }
-  .modal-prod-name { font-size:0.86rem; font-weight:500; transition:color 0.15s; }
-  .modal-product:hover .modal-prod-name { color:var(--pink-dark); }
-  .modal-prod-price { font-size:0.88rem; font-weight:600; color:var(--pink-dark); white-space:nowrap; }
-  .modal-toggle-btn {
-    width:32px; height:32px; border:2px solid var(--border); border-radius:8px;
-    background:#fff; color:var(--gray); font-size:1.1rem;
-    cursor:pointer; display:flex; align-items:center; justify-content:center;
-    flex-shrink:0; transition:all 0.15s; font-weight:700;
-  }
-  .modal-toggle-btn.selected { background:var(--pink); border-color:var(--pink); color:#fff; }
-  .no-results { text-align:center; padding:28px 0; color:var(--gray); font-size:0.87rem; }
-
-  /* CATEGORY HEADERS */
-  .cat-header {
-    display:flex; align-items:center; gap:8px;
-    padding:14px 0 8px;
-    border-bottom: 2px solid var(--pink-light);
-    margin-top: 6px;
-  }
-  .cat-header:first-child { margin-top:0; }
-  .cat-icon { font-size:1.1rem; }
-  .cat-name { font-family:'Playfair Display',serif; font-size:0.95rem; color:var(--pink-dark); font-weight:700; flex:1; }
-  .cat-count { font-size:0.7rem; color:var(--gray); background:var(--pink-light); padding:2px 8px; border-radius:20px; }
-
-  /* STICKY BAR */
-  #sticky-bar {
-    position:fixed; bottom:0; left:0; right:0; background:#fff;
-    border-top:2px solid var(--border); padding:12px 20px;
-    box-shadow:0 -4px 20px rgba(0,0,0,0.08); z-index:100; display:none;
-  }
-  #sticky-bar.visible { display:block; }
-  .bar-inner { max-width:680px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px; }
-  .bar-label { font-size:0.70rem; color:var(--gray); }
-  .bar-amount { font-family:'Playfair Display',serif; font-size:1.3rem; color:var(--pink-dark); font-weight:700; }
-  .btn-whatsapp {
-    background:var(--green); color:#fff; border:none; border-radius:10px;
-    padding:11px 16px; font-size:0.86rem; font-weight:600; cursor:pointer;
-    display:flex; align-items:center; gap:6px; transition:background 0.2s,transform 0.1s;
-    white-space:nowrap; font-family:'DM Sans',sans-serif;
-  }
-  .btn-whatsapp:hover { background:#1ebe5a; }
-  .btn-whatsapp:active { transform:scale(0.97); }
-
-  @media(max-width:480px) {
-    header h1 { font-size:1.5rem; }
-    .modal { max-height:86vh; }
+  @media(max-width:600px) {
+    header { flex-direction:column; align-items:flex-start; gap:10px; }
+    .stats { grid-template-columns:1fr 1fr; }
+    th, td { padding:9px 10px; font-size:0.77rem; }
   }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>🌸 Produtos Priscila</h1>
-  <p>Monte seu pedido e envie pelo WhatsApp</p>
+  <div>
+    <h1>🌸 Painel – Produtos Priscila</h1>
+    <p>Visão geral de pedidos e clientes</p>
+  </div>
+  <div class="header-badge">Área Administrativa</div>
 </header>
 
-<!-- TABS -->
-<div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('pedido',this)">🛒 Fazer Pedido</button>
-  <button class="tab-btn" onclick="switchTab('historico',this)">📋 Meus Pedidos</button>
-</div>
-
-<!-- TAB PEDIDO -->
-<div id="tab-pedido" class="tab-content active">
 <main>
-  <div id="products-loading" class="loading-state">
-    <div class="spinner"></div>
-    Carregando produtos…
+
+  <div class="setup-alert" id="setup-alert" style="display:none">
+    ⚙️ <strong>Configure o ID da planilha para ver os dados reais</strong>
+    Abra este arquivo em um editor de texto e substitua <code>SEU_ID_AQUI</code> pelo ID da sua Google Planilha.
+    Siga o guia <strong>CONFIGURACAO.html</strong> para o passo a passo completo.
   </div>
 
-  <div id="pedido-content" style="display:none">
-    <div class="name-section">
-      <label class="field-label">Seu nome</label>
-      <input type="text" class="name-input" id="client-name" placeholder="Digite seu nome completo…" />
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat-card"><div class="stat-value" id="stat-total-pedidos">–</div><div class="stat-label">Pedidos realizados</div></div>
+    <div class="stat-card"><div class="stat-value" id="stat-total-valor">–</div><div class="stat-label">Volume total</div></div>
+    <div class="stat-card"><div class="stat-value" id="stat-total-clientes">–</div><div class="stat-label">Clientes únicos</div></div>
+    <div class="stat-card"><div class="stat-value" id="stat-total-produtos">–</div><div class="stat-label">Produtos no catálogo</div></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('pedidos',this)">📦 Pedidos</button>
+    <button class="tab-btn" onclick="switchTab('clientes',this)">👥 Clientes</button>
+    <button class="tab-btn" onclick="switchTab('produtos',this)">🏷️ Produtos</button>
+  </div>
+
+  <!-- TAB PEDIDOS -->
+  <div id="tab-pedidos" class="tab-content active">
+    <div class="filters">
+      <input type="text" class="filter-input" id="filter-pedidos" placeholder="🔍 Buscar por cliente ou produto…" oninput="renderOrders()">
+      <input type="date" class="filter-input" id="filter-date" style="max-width:180px" onchange="renderOrders()">
     </div>
-
-    <div class="section-title">
-      Meu pedido
-      <span id="items-count">0 itens</span>
+    <div class="clear-all-wrap">
+      <button class="clear-all-btn" onclick="clearAllOrders()">🗑️ Apagar todos os pedidos</button>
     </div>
-
-    <div id="selected-list">
-      <div class="empty-state">
-        <span class="icon">🛒</span>
-        Nenhum produto adicionado.<br>Toque em <strong>"+ Adicionar produto"</strong> para começar.
-      </div>
-    </div>
-
-    <button class="btn-add-item" onclick="openModal()">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Adicionar produto
-    </button>
-
-    <div class="pix-card">
-      <div class="pix-icon">💳</div>
-      <div class="pix-info">
-        <h3>Pagamento via PIX</h3>
-        <div class="pix-key">47991839274</div>
-        <div class="pix-tip">Chave PIX (celular) · Pague após confirmação</div>
-      </div>
-      <button class="copy-btn" id="copy-pix-btn" onclick="copyPix(this)">Copiar</button>
-    </div>
-
-    <div class="notice">
-      ⚠️ Os estoques estão sujeitos à confirmação no momento do fechamento do pedido.
+    <div class="table-wrap">
+      <div id="orders-loading" class="loading-state"><div class="spinner"></div>Carregando pedidos…</div>
+      <table id="orders-table" style="display:none">
+        <thead><tr><th>Data</th><th>Cliente</th><th>Itens</th><th>Total</th><th></th></tr></thead>
+        <tbody id="orders-body"></tbody>
+      </table>
     </div>
   </div>
+
+  <!-- TAB CLIENTES -->
+  <div id="tab-clientes" class="tab-content">
+    <div class="filters">
+      <input type="text" class="filter-input" id="filter-clientes" placeholder="🔍 Buscar cliente…" oninput="renderClients()">
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Cliente</th><th>Pedidos</th><th>Último pedido</th><th>Total gasto</th><th></th></tr></thead>
+        <tbody id="clients-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB PRODUTOS -->
+  <div id="tab-produtos" class="tab-content">
+    <div class="filters">
+      <input type="text" class="filter-input" id="filter-produtos" placeholder="🔍 Buscar produto…" oninput="renderProducts()">
+    </div>
+    <div class="table-wrap">
+      <div id="products-loading" class="loading-state"><div class="spinner"></div>Carregando produtos…</div>
+      <table id="products-table" class="prod-table" style="display:none">
+        <thead><tr><th>Código</th><th>Produto</th><th>Preço unitário</th><th></th></tr></thead>
+        <tbody id="products-body"></tbody>
+      </table>
+    </div>
+  </div>
+
 </main>
-</div>
-
-<!-- TAB HISTÓRICO -->
-<div id="tab-historico" class="tab-content">
-<main>
-  <div class="section-title" style="margin-bottom:14px">
-    Meus Pedidos Anteriores
-  </div>
-  <div id="history-list">
-    <div class="history-empty">
-      <span class="icon">📋</span>
-      Nenhum pedido encontrado.<br>Os pedidos aparecem aqui após o envio.
-    </div>
-  </div>
-</main>
-</div>
-
-<!-- STICKY BAR -->
-<div id="sticky-bar">
-  <div class="bar-inner">
-    <div>
-      <div class="bar-label" id="bar-label">0 produtos · 0 unidades</div>
-      <div class="bar-amount" id="bar-amount">R$ 0,00</div>
-    </div>
-    <button class="btn-whatsapp" onclick="sendWhatsApp()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-      Enviar pedido
-    </button>
-  </div>
-</div>
-
-<!-- MODAL -->
-<div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
-  <div class="modal">
-    <div class="modal-header">
-      <h2>Escolher produto</h2>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
-    <div class="modal-search">
-      <input type="text" class="search-input" id="search-input" placeholder="Buscar por nome ou código…" oninput="filterProducts()" />
-    </div>
-    <div class="modal-list" id="modal-list"></div>
-  </div>
-</div>
 
 <script>
-// ══════════════════════════════════════════════════════
-// ⚙️ CONFIGURAÇÃO — substitua pela sua URL do Google Sheets
-// Instruções no guia CONFIGURACAO.html
-// ══════════════════════════════════════════════════════
-const SHEET_ID = '1q8E1PE5jix4nPsvaZd1g61rLI2jLflqfsXt7_YPwwoE';
+// ══════════════════════════════════════════════════
+// ⚙️ CONFIGURAÇÃO
+const SHEET_ID            = '1q8E1PE5jix4nPsvaZd1g61rLI2jLflqfsXt7_YPwwoE';
 const SHEET_PRODUCTS_NAME = 'Produtos';
 const SHEET_ORDERS_NAME   = 'Pedidos';
-const SHEET_HISTORY_NAME  = 'Historico';
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
 
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw-EECDlhk_zmrW2qjrbpRi1j3WbhpWk-of9VSY7BU0z_W5Fbd9AUeiws2SGciszLeeZg/exec';
-const PIX_KEY      = '47991839274';
-const WHATSAPP_NUM = '5547991839274';
+let allOrders   = [];
+let allProducts = [];
 
-let products = [];
-let cart     = {}; // code → qty (toggle: presente = selecionado)
+function fmt(v) { return Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
 
-// ── UTILS ──────────────────────────────────────────────
-function fmt(v) { return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); }
-function today() {
-  return new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-}
-
-// ── TABS ───────────────────────────────────────────────
 function switchTab(tab, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('tab-' + tab).classList.add('active');
-  if (tab === 'historico') loadHistory();
 }
 
-// ── LOAD PRODUCTS FROM GOOGLE SHEETS ───────────────────
-async function loadProducts() {
-  if (SHEET_ID === 'SEU_ID_AQUI') {
-    products = DEMO_PRODUCTS;
-    document.getElementById('products-loading').style.display = 'none';
-    document.getElementById('pedido-content').style.display = 'block';
-    renderSelectedList();
-    return;
-  }
+async function fetchSheet(sheetName) {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}&t=${Date.now()}`;
+  const res  = await fetch(url, { cache: 'no-store' });
+  const text = await res.text();
+  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+  return json.table.rows;
+}
+
+async function loadAll() {
   try {
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_PRODUCTS_NAME)}&t=${Date.now()}`;
-    const res  = await fetch(url, { cache: 'no-store' });
-    const text = await res.text();
-    const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
-    const rows = json.table.rows;
-    products = rows.slice(1).map(r => ({
-      code:     (r.c[0]?.v ?? 'S/COD').toString().trim(),
-      name:     (r.c[1]?.v ?? '').toString().trim(),
-      price:    parseFloat(r.c[2]?.v ?? 0) || 0,
-      category: (r.c[3]?.v ?? 'Outros').toString().trim() || 'Outros',
-    })).filter(p => p.name).sort((a,b) => a.name.localeCompare(b.name));
+    const prodRows = await fetchSheet(SHEET_PRODUCTS_NAME);
+    allProducts = prodRows.slice(1).map(r => ({
+      code:  (r.c[0]?.v ?? '').toString().trim(),
+      name:  (r.c[1]?.v ?? '').toString().trim(),
+      price: parseFloat(r.c[2]?.v ?? 0) || 0,
+    })).filter(p => p.name);
+
+    const ordRows = await fetchSheet(SHEET_ORDERS_NAME);
+    const sheetOrders = ordRows.slice(1).map(r => ({
+      date:   (r.c[0]?.v ?? '').toString().trim(),
+      client: (r.c[1]?.v ?? '').toString().trim(),
+      items:  (r.c[2]?.v ?? '').toString().trim(),
+      total:  parseFloat((r.c[3]?.v ?? '0').toString().replace(/[^\d,.]/g,'').replace(',','.')) || 0,
+    })).filter(o => o.client);
+
+    allOrders = sheetOrders;
+    document.getElementById('setup-alert').style.display = 'none';
   } catch(e) {
-    products = DEMO_PRODUCTS;
-    console.warn('Usando produtos locais (verifique o SHEET_ID)', e);
+    console.error('Erro ao carregar planilha:', e);
+    document.getElementById('setup-alert').innerHTML = `⚠️ <strong>Erro ao carregar dados da planilha</strong><br>Verifique se a planilha está publicada na web. Erro: ${e.message}`;
+    document.getElementById('setup-alert').style.display = 'block';
+    allOrders = [];
+    allProducts = [];
   }
-  document.getElementById('products-loading').style.display = 'none';
-  document.getElementById('pedido-content').style.display = 'block';
-  renderSelectedList();
+  renderAll();
 }
 
-// ── DEMO PRODUCTS (fallback / antes de configurar sheets) ──
-const DEMO_PRODUCTS = [
-  { code:'40000006', name:'AMACIANTE CONCENTRADO UAU PERFUMES FLORES E SONHOS 1L (12)',       price:10.20, category:'Lavanderia' },
-  { code:'40000004', name:'AMACIANTE CONCENTRADO UAU PERFUMES CARINHO E CONFORTO 1L (12)',    price:10.20, category:'Lavanderia' },
-  { code:'40000010', name:'AMACIANTE CONCENTRADO UAU PERFUMES ROSAS SEDUCAO 1L (12)',         price:10.20, category:'Lavanderia' },
-  { code:'61031215', name:'COLGATE TOTAL PREV ATIVA FRESH MINT 3X90G WHITENING - KIT 6 UN',  price:47.93, category:'Higiene' },
-  { code:'40000055', name:'DESENGORDURANTE UAU COZINHA LIMAO 2 X 500ML (12)',                 price: 8.59, category:'Limpeza' },
-  { code:'40000063', name:'DETERGENTE LIMPA BOX UAU GATILHO 450ML (12)',                      price:14.53, category:'Limpeza' },
-  { code:'40000078', name:'LAVA ROUPAS LIQUIDO UAU ACTIVE 3L (4)',                            price:21.86, category:'Lavanderia' },
-  { code:'40000621', name:'LAVA ROUPAS UAU PERFUME COCO E BAUNILHA 750ML (18)',               price: 7.01, category:'Lavanderia' },
-  { code:'40000079', name:'LAVA ROUPAS UAU PERFUME ROSAS E SEDUCAO 3L (4)',                   price:21.86, category:'Lavanderia' },
-  { code:'40000613', name:'LIMPADOR UAU NEUTRALIZADOR DE ODORES 2L (8)',                      price:12.29, category:'Limpeza' },
-  { code:'40000673', name:'LIMPADOR UAU PERFUMES FLORES VERMELHAS E SEDUCAO PROMO 1,8L (9)', price: 9.95, category:'Limpeza' },
-  { code:'40000136', name:'LUSTRA MOVEIS UAU PERFUME ROSAS E SEDUCAO',                        price: 0.00, category:'Limpeza' },
-  { code:'S/COD',    name:'MULTIUSO UAU NEUTRALIZADOR ODORES 500ML (24)',                     price: 3.39, category:'Limpeza' },
-  { code:'40000151', name:'MULTIUSO UAU PERFUME ROSAS E SEDUCAO 500ML (24)',                  price: 3.69, category:'Limpeza' },
-  { code:'40000152', name:'PASSA ROUPAS UAU SEM PASSAR GATILHO 500ML (12)',                   price:13.31, category:'Lavanderia' },
-  { code:'911935',   name:'PILHA PHILIPS ALCALINA AAA 1.5V BLISTER C/4 UN LR03P4B/59 (3)',   price: 9.50, category:'Outros' },
-  { code:'3769',     name:'PINHO SOL LAVANDA 1000ML (12)',                                    price: 9.00, category:'Limpeza' },
-  { code:'61033364', name:'SHAMPOO PALMOLIVE ANTICOCEIRA MEN 350ML (6)',                      price:12.88, category:'Higiene' },
-].sort((a,b) => a.name.localeCompare(b.name));
-
-// ── MODAL ──────────────────────────────────────────────
-function openModal() {
-  document.getElementById('modal-overlay').classList.add('open');
-  document.getElementById('search-input').value = '';
-  renderModalList('');
-  setTimeout(() => document.getElementById('search-input').focus(), 150);
+function loadDemoData(saved) {
+  allProducts = [
+    {code:'40000006',name:'AMACIANTE CONCENTRADO UAU FLORES E SONHOS 1L',price:10.20},
+    {code:'40000055',name:'DESENGORDURANTE UAU COZINHA LIMAO 2X500ML',price:8.59},
+    {code:'40000078',name:'LAVA ROUPAS LIQUIDO UAU ACTIVE 3L',price:21.86},
+    {code:'40000152',name:'PASSA ROUPAS UAU SEM PASSAR GATILHO 500ML',price:13.31},
+    {code:'61033364',name:'SHAMPOO PALMOLIVE ANTICOCEIRA MEN 350ML',price:12.88},
+  ];
+  const demo = [
+    {date:'09/04/2026 10:30', client:'Maria Silva',    items:'LAVA ROUPAS LIQUIDO UAU ACTIVE 3L (2×)\nAMACIANTE CONCENTRADO UAU (3×)', total:64.32},
+    {date:'09/04/2026 14:15', client:'Ana Souza',      items:'PASSA ROUPAS UAU SEM PASSAR GATILHO (1×)\nSHAMPOO PALMOLIVE ANTICOCEIRA (2×)', total:39.07},
+    {date:'08/04/2026 09:00', client:'Maria Silva',    items:'DESENGORDURANTE UAU COZINHA LIMAO (4×)', total:34.36},
+    {date:'07/04/2026 16:45', client:'Carla Ferreira', items:'LAVA ROUPAS LIQUIDO UAU ACTIVE 3L (1×)', total:21.86},
+  ];
+  allOrders = saved ? JSON.parse(saved) : demo;
+  renderAll();
 }
-function closeModal() { document.getElementById('modal-overlay').classList.remove('open'); }
-function closeModalOutside(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
-function filterProducts() { renderModalList(document.getElementById('search-input').value); }
 
-function renderModalList(query) {
-  const q = query.toLowerCase().trim();
-  const list = document.getElementById('modal-list');
-  const filtered = products.filter(p => !q || p.name.toLowerCase().includes(q) || p.code.toLowerCase().includes(q));
-  if (!filtered.length) { list.innerHTML = '<div class="no-results">Nenhum produto encontrado.</div>'; return; }
+function renderAll() {
+  renderOrders();
+  renderClients();
+  renderProducts();
+  updateStats();
+}
 
-  if (q) {
-    // com busca: lista simples sem categorias
-    list.innerHTML = filtered.map(p => {
-      const sel = !!cart[p.code];
-      return `
-      <div class="modal-product" onclick="toggleCart('${p.code}')">
-        <div class="modal-prod-info">
-          <div class="modal-prod-code">Cód. ${p.code}</div>
-          <div class="modal-prod-name">${p.name}</div>
-        </div>
-        <div class="modal-prod-price">${p.price > 0 ? fmt(p.price) : 'A consultar'}</div>
-        <button class="modal-toggle-btn ${sel ? 'selected' : ''}" id="mtb-${p.code}">${sel ? '✓' : '+'}</button>
-      </div>`;
-    }).join('');
+function updateStats() {
+  document.getElementById('stat-total-pedidos').textContent  = allOrders.length;
+  document.getElementById('stat-total-valor').textContent    = fmt(allOrders.reduce((s,o) => s+o.total,0));
+  const uniq = new Set(allOrders.map(o => o.client.toLowerCase()));
+  document.getElementById('stat-total-clientes').textContent = uniq.size;
+  document.getElementById('stat-total-produtos').textContent = allProducts.length;
+}
+
+function renderOrders() {
+  const q    = (document.getElementById('filter-pedidos')?.value || '').toLowerCase();
+  const date = document.getElementById('filter-date')?.value || '';
+  const loading = document.getElementById('orders-loading');
+  const table   = document.getElementById('orders-table');
+  loading.style.display = 'none';
+  table.style.display   = '';
+
+  // índices reais no allOrders para manter referência ao excluir
+  const filtered = allOrders
+    .map((o, i) => ({ ...o, _idx: i }))
+    .filter(o =>
+      (!q || o.client.toLowerCase().includes(q) || o.items.toLowerCase().includes(q)) &&
+      (!date || o.date.includes(date.split('-').reverse().join('/')))
+    );
+
+  const tbody = document.getElementById('orders-body');
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-table">Nenhum pedido encontrado.</td></tr>`;
     return;
   }
-
-  // sem busca: agrupa por categoria
-  const categories = {};
-  filtered.forEach(p => {
-    const cat = p.category || 'Outros';
-    if (!categories[cat]) categories[cat] = [];
-    categories[cat].push(p);
-  });
-
-  const catIcons = {
-    'Lavanderia': '🧺', 'Limpeza': '🧹', 'Higiene': '🪥',
-    'Alimentos': '🛒', 'Bebidas': '🥤', 'Outros': '📦'
-  };
-
-  list.innerHTML = Object.keys(categories).sort().map(cat => `
-    <div class="cat-header">
-      <span class="cat-icon">${catIcons[cat] || '📦'}</span>
-      <span class="cat-name">${cat}</span>
-      <span class="cat-count">${categories[cat].length} produto${categories[cat].length !== 1 ? 's' : ''}</span>
-    </div>
-    ${categories[cat].map(p => {
-      const sel = !!cart[p.code];
-      return `
-      <div class="modal-product" onclick="toggleCart('${p.code}')">
-        <div class="modal-prod-info">
-          <div class="modal-prod-code">Cód. ${p.code}</div>
-          <div class="modal-prod-name">${p.name}</div>
-        </div>
-        <div class="modal-prod-price">${p.price > 0 ? fmt(p.price) : 'A consultar'}</div>
-        <button class="modal-toggle-btn ${sel ? 'selected' : ''}" id="mtb-${p.code}">${sel ? '✓' : '+'}</button>
-      </div>`;
-    }).join('')}
-  `).join('');
-}
-
-// ── CART (toggle no modal, +/- na lista) ───────────────
-function toggleCart(code) {
-  if (cart[code]) {
-    delete cart[code];
-  } else {
-    cart[code] = 1;
-  }
-  // atualiza botão no modal
-  const btn = document.getElementById('mtb-' + code);
-  if (btn) {
-    btn.classList.toggle('selected', !!cart[code]);
-    btn.textContent = cart[code] ? '✓' : '+';
-  }
-  renderSelectedList();
-  updateBar();
-}
-
-function changeQty(code, delta) {
-  const newQty = Math.max(1, (cart[code] || 1) + delta);
-  cart[code] = newQty;
-  renderSelectedList();
-  updateBar();
-}
-
-function removeItem(code) {
-  delete cart[code];
-  renderSelectedList();
-  updateBar();
-  // atualiza botão no modal se estiver aberto
-  const btn = document.getElementById('mtb-' + code);
-  if (btn) { btn.classList.remove('selected'); btn.textContent = '+'; }
-}
-
-function renderSelectedList() {
-  const container = document.getElementById('selected-list');
-  const keys = Object.keys(cart).filter(c => cart[c] > 0);
-  document.getElementById('items-count').textContent = keys.length + ' item' + (keys.length !== 1 ? 's' : '');
-
-  if (!keys.length) {
-    container.innerHTML = `<div class="empty-state"><span class="icon">🛒</span>Nenhum produto adicionado.<br>Toque em <strong>"+ Adicionar produto"</strong> para começar.</div>`;
-    return;
-  }
-  const items = keys.map(c => ({...products.find(p => p.code === c), qty: cart[c]}))
-                     .sort((a,b) => a.name.localeCompare(b.name));
-  container.innerHTML = items.map(item => {
-    const sub = item.price * item.qty;
-    return `
-    <div class="selected-item">
-      <div class="item-info">
-        <div class="item-code">Cód. ${item.code}</div>
-        <div class="item-name">${item.name}</div>
-      </div>
-      <div class="item-price">
-        ${item.price > 0 ? fmt(sub) : 'A consultar'}
-        <small>${item.qty} × ${item.price > 0 ? fmt(item.price) : '–'}</small>
-      </div>
-      <div class="qty-control">
-        <button class="qty-btn" onclick="changeQty('${item.code}',-1)">−</button>
-        <div class="qty-value">${item.qty}</div>
-        <button class="qty-btn" onclick="changeQty('${item.code}',+1)">+</button>
-      </div>
-      <button class="remove-btn" onclick="removeItem('${item.code}')">✕</button>
-    </div>`;
-  }).join('');
-}
-
-function updateBar() {
-  const keys = Object.keys(cart).filter(c => cart[c] > 0);
-  const bar = document.getElementById('sticky-bar');
-  if (!keys.length) { bar.classList.remove('visible'); return; }
-  bar.classList.add('visible');
-  const total = keys.reduce((s,c) => { const p = products.find(x => x.code===c); return s+(p?p.price*cart[c]:0); },0);
-  const totalUnits = keys.reduce((s,c) => s+cart[c], 0);
-  document.getElementById('bar-amount').textContent = fmt(total);
-  document.getElementById('bar-label').textContent = `${keys.length} produto${keys.length!==1?'s':''} · ${totalUnits} unidade${totalUnits!==1?'s':''}`;
-}
-
-// ── WHATSAPP ───────────────────────────────────────────
-function sendWhatsApp() {
-  const keys = Object.keys(cart).filter(c => cart[c] > 0);
-  if (!keys.length) { alert('Adicione pelo menos um produto antes de enviar.'); return; }
-  const clientName = document.getElementById('client-name').value.trim();
-  if (!clientName) { alert('Por favor, informe seu nome antes de enviar.'); document.getElementById('client-name').focus(); return; }
-
-  const items = keys.map(c => ({...products.find(p => p.code===c), qty: cart[c]}))
-                     .sort((a,b) => a.name.localeCompare(b.name));
-  const total = items.reduce((s,i) => s+(i.price*i.qty), 0);
-  const dateStr = today();
-
-  let lines = ['🌸 *PEDIDO – Produtos Priscila*', `👤 Cliente: *${clientName}*`, `📅 Data: ${dateStr}`, ''];
-  items.forEach(i => {
-    const unit = i.price > 0 ? fmt(i.price) : 'a consultar';
-    const sub  = i.price > 0 ? fmt(i.price * i.qty) : 'a consultar';
-    lines.push(`• *${i.name}*`);
-    lines.push(`  Cód: ${i.code} | Qtd: ${i.qty} × ${unit} = *${sub}*`);
-  });
-  lines.push('', `💰 *TOTAL: ${fmt(total)}*`, '', `💳 PIX: ${PIX_KEY}`, '', '⚠️ _Estoques sujeitos à confirmação no fechamento do pedido._');
-
-  // resumo dos itens para a planilha
-  const itemsSummary = items.map(i => `${i.name} (${i.qty}×)`).join('\n');
-
-  // salva no histórico local
-  saveOrderLocally({ client: clientName, date: dateStr, items, total });
-
-  // salva na planilha Google automaticamente
-  saveOrderToSheet({ date: dateStr, client: clientName, items: itemsSummary, total: fmt(total) });
-
-  window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(lines.join('\n'))}`, '_blank');
-
-  // limpa tela para novo pedido
-  Object.keys(cart).forEach(k => delete cart[k]);
-  document.getElementById('client-name').value = '';
-  renderSelectedList();
-  updateBar();}
-
-function saveOrderToSheet(order) {
-  if (!APPS_SCRIPT_URL) return;
-  fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(order)
-  }).catch(e => console.warn('Não foi possível salvar na planilha:', e));
-}
-
-// ── HISTÓRICO LOCAL (localStorage fallback) ────────────
-function saveOrderLocally(order) {
-  const key = 'priscila_orders';
-  const orders = JSON.parse(localStorage.getItem(key) || '[]');
-  orders.unshift(order);
-  localStorage.setItem(key, JSON.stringify(orders.slice(0, 50))); // max 50 pedidos
-}
-
-function loadHistory() {
-  const container = document.getElementById('history-list');
-  const orders = JSON.parse(localStorage.getItem('priscila_orders') || '[]');
-  if (!orders.length) {
-    container.innerHTML = `<div class="history-empty"><span class="icon">📋</span>Nenhum pedido encontrado.<br>Os pedidos aparecem aqui após o envio.</div>`;
-    return;
-  }
-  container.innerHTML = orders.map((o, idx) => `
-    <div class="history-item" id="hitem-${idx}">
-      <div class="history-header">
-        <div class="history-header-left">
-          <span class="history-date">📅 ${o.date}</span>
-          <span class="history-total">${fmt(o.total)}</span>
-        </div>
-        <button class="history-del-btn" onclick="deleteOrder(${idx})" title="Excluir pedido">🗑️</button>
-      </div>
-      <div class="history-products">
-        ${o.items.map(i => `<span>• ${i.name} (${i.qty}× ${i.price>0?fmt(i.price):'a consultar'})</span>`).join('')}
-      </div>
-    </div>`).join('') +
-    `<button class="history-clear-btn" onclick="clearAllOrders()">🗑️ Apagar todo o histórico</button>`;
+  tbody.innerHTML = filtered.map(o => `
+    <tr id="orow-${o._idx}">
+      <td style="white-space:nowrap;color:var(--gray);font-size:0.76rem">${o.date}</td>
+      <td class="client-name">${o.client}</td>
+      <td class="order-items">${o.items.split('\n').map(i => `<span>• ${i}</span>`).join('')}</td>
+      <td class="badge-total">${fmt(o.total)}</td>
+      <td><button class="del-btn" onclick="deleteOrder(${o._idx})">🗑️ Excluir</button></td>
+    </tr>`).join('');
 }
 
 function deleteOrder(idx) {
-  if (!confirm('Excluir este pedido do histórico?')) return;
-  const orders = JSON.parse(localStorage.getItem('priscila_orders') || '[]');
-  orders.splice(idx, 1);
-  localStorage.setItem('priscila_orders', JSON.stringify(orders));
-  loadHistory();
+  if (!confirm('Excluir este pedido?')) return;
+  allOrders.splice(idx, 1);
+  saveOrders();
+  renderAll();
 }
 
 function clearAllOrders() {
-  if (!confirm('Apagar todo o histórico de pedidos? Esta ação não pode ser desfeita.')) return;
-  localStorage.removeItem('priscila_orders');
-  loadHistory();
+  if (!confirm('Apagar TODOS os pedidos? Esta ação não pode ser desfeita.')) return;
+  allOrders = [];
+  saveOrders();
+  renderAll();
 }
 
-// ── PIX COPY ───────────────────────────────────────────
-function copyPix(btn) {
-  // Tenta clipboard API primeiro, fallback para método antigo
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(PIX_KEY).then(() => showCopied(btn)).catch(() => fallbackCopy(btn));
-  } else {
-    fallbackCopy(btn);
+function deleteClientOrders(clientName) {
+  if (!confirm(`Excluir todos os pedidos de "${clientName}"?`)) return;
+  allOrders = allOrders.filter(o => o.client.toLowerCase() !== clientName.toLowerCase());
+  saveOrders();
+  renderAll();
+}
+
+function saveOrders() {
+  localStorage.setItem('painel_orders', JSON.stringify(allOrders));
+}
+
+function renderClients() {
+  const q = (document.getElementById('filter-clientes')?.value || '').toLowerCase();
+  const map = {};
+  allOrders.forEach(o => {
+    const k = o.client.toLowerCase();
+    if (!map[k]) map[k] = { name: o.client, count: 0, total: 0, last: '' };
+    map[k].count++;
+    map[k].total += o.total;
+    if (!map[k].last || o.date > map[k].last) map[k].last = o.date;
+  });
+
+  const clients = Object.values(map)
+    .filter(c => !q || c.name.toLowerCase().includes(q))
+    .sort((a,b) => b.total - a.total);
+
+  const tbody = document.getElementById('clients-body');
+  if (!clients.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-table">Nenhum cliente encontrado.</td></tr>`;
+    return;
   }
-}
-function fallbackCopy(btn) {
-  const el = document.createElement('textarea');
-  el.value = PIX_KEY;
-  el.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0';
-  document.body.appendChild(el);
-  el.focus(); el.select();
-  try { document.execCommand('copy'); showCopied(btn); } catch(e) { alert('Chave PIX: ' + PIX_KEY); }
-  document.body.removeChild(el);
-}
-function showCopied(btn) {
-  const orig = btn.textContent;
-  btn.textContent = 'Copiado! ✓';
-  btn.classList.add('copied');
-  setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2500);
+  tbody.innerHTML = clients.map(c => `
+    <tr>
+      <td class="client-name">${c.name}</td>
+      <td style="text-align:center">${c.count}</td>
+      <td style="color:var(--gray);font-size:0.78rem">${c.last}</td>
+      <td class="badge-total">${fmt(c.total)}</td>
+      <td><button class="del-btn" onclick="deleteClientOrders('${c.name.replace(/'/g,"\\'")}')">🗑️ Excluir</button></td>
+    </tr>`).join('');
 }
 
-// ── INIT ───────────────────────────────────────────────
-loadProducts();
-renderSelectedList();
+function renderProducts() {
+  const q = (document.getElementById('filter-produtos')?.value || '').toLowerCase();
+  const loading = document.getElementById('products-loading');
+  const table   = document.getElementById('products-table');
+  loading.style.display = 'none';
+  table.style.display   = '';
+
+  const filtered = allProducts
+    .filter(p => !q || p.name.toLowerCase().includes(q) || p.code.toLowerCase().includes(q))
+    .sort((a,b) => a.name.localeCompare(b.name));
+
+  const tbody = document.getElementById('products-body');
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="4" class="empty-table">Nenhum produto encontrado.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filtered.map(p => `
+    <tr>
+      <td>${p.code}</td>
+      <td>${p.name}</td>
+      <td class="prod-price">${p.price > 0 ? fmt(p.price) : 'A consultar'}</td>
+      <td><button class="prod-edit" onclick="alert('Edite diretamente na sua Google Planilha — aba Produtos.')">Editar na Planilha</button></td>
+    </tr>`).join('');
+}
+
+loadAll();
 </script>
 </body>
 </html>
