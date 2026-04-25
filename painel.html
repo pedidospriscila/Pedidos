@@ -201,6 +201,23 @@ function switchTab(tab, btn) {
   document.getElementById('tab-' + tab).classList.add('active');
 }
 
+// ── PARSE DATE ─────────────────────────────────────────
+function parseDate(raw) {
+  if (!raw) return '';
+  const s = raw.toString().trim();
+  // formato Google: Date(2026,3,16,11,2,0) — mês é base 0
+  const m = s.match(/Date\((\d+),(\d+),(\d+)(?:,(\d+),(\d+))?/);
+  if (m) {
+    const d    = String(m[3]).padStart(2,'0');
+    const mo   = String(parseInt(m[2])+1).padStart(2,'0');
+    const y    = m[1];
+    const h    = m[4] ? String(m[4]).padStart(2,'0') : null;
+    const mi   = m[5] ? String(m[5]).padStart(2,'0') : null;
+    return h ? `${d}/${mo}/${y} ${h}:${mi}` : `${d}/${mo}/${y}`;
+  }
+  return s;
+}
+
 // ── FETCH SHEET ────────────────────────────────────────
 async function fetchSheet(sheetName) {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}&t=${Date.now()}`;
@@ -221,14 +238,17 @@ async function loadAll() {
     })).filter(p => p.name);
 
     const ordRows = await fetchSheet(SHEET_ORDERS_NAME);
-    // gera ID único por pedido (índice+data+cliente)
-    const sheetOrders = ordRows.slice(1).map((r, i) => ({
-      _id:    i + '_' + (r.c[0]?.v ?? '').toString().replace(/\W/g,''),
-      date:   (r.c[0]?.v ?? '').toString().trim(),
-      client: (r.c[1]?.v ?? '').toString().trim(),
-      items:  (r.c[2]?.v ?? '').toString().trim(),
-      total:  parseFloat((r.c[3]?.v ?? '0').toString().replace(/[^\d,.]/g,'').replace(',','.')) || 0,
-    })).filter(o => o.client);
+    const sheetOrders = ordRows.slice(1).map((r, i) => {
+      const rawDate = r.c[0]?.v ?? '';
+      const date    = parseDate(rawDate);
+      return {
+        _id:    i + '_' + rawDate.toString().replace(/\W/g,''),
+        date,
+        client: (r.c[1]?.v ?? '').toString().trim(),
+        items:  (r.c[2]?.v ?? '').toString().trim(),
+        total:  parseFloat((r.c[3]?.v ?? '0').toString().replace(/[^\d,.]/g,'').replace(',','.')) || 0,
+      };
+    }).filter(o => o.client);
 
     // filtra os que foram excluídos localmente
     const deleted = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
