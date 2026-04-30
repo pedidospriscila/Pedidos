@@ -457,6 +457,8 @@ function exportPDF() {
     table { width:100%; border-collapse:collapse; margin-top:6px; }
     th { background:#c0305f; color:#fff; padding:7px 10px; text-align:left; font-size:0.78rem; }
     td { padding:7px 10px; border-bottom:1px solid #f0d9e8; font-size:0.80rem; }
+    td.num { text-align:center; }
+    td.val { text-align:right; white-space:nowrap; }
     tr:last-child td { border-bottom:none; }
     .footer { margin-top:24px; padding-top:14px; border-top:2px solid #f0d9e8; display:flex; justify-content:space-between; align-items:center; }
     .footer-total { font-size:1.1rem; font-weight:700; color:#c0305f; }
@@ -467,12 +469,22 @@ function exportPDF() {
   <div class="subtitle">Gerado em: ${now} · ${filtered.length} pedido${filtered.length!==1?'s':''}</div>
   ${filtered.map(o => {
     const rows = o.items.split('\n').map(line => {
-      // tenta extrair código do item
       const prodMatch = allProducts.find(p => line.includes(p.name.substring(0,20)));
-      const code = prodMatch ? prodMatch.code : '–';
+      const code      = prodMatch ? prodMatch.code  : '–';
+      const unitPrice = prodMatch ? prodMatch.price : 0;
       const m = line.match(/^(.+?)\s*\((\d+)×\)$/);
-      if (m) return `<tr><td>${code}</td><td>${m[1].trim()}</td><td style="text-align:center">${m[2]}</td></tr>`;
-      return `<tr><td>${code}</td><td colspan="2">${line}</td></tr>`;
+      if (m) {
+        const qty      = parseInt(m[2]);
+        const subtotal = unitPrice > 0 ? unitPrice * qty : null;
+        return `<tr>
+          <td>${code}</td>
+          <td>${m[1].trim()}</td>
+          <td class="num">${qty}</td>
+          <td class="val">${unitPrice>0?fmt(unitPrice):'–'}</td>
+          <td class="val">${subtotal?fmt(subtotal):'–'}</td>
+        </tr>`;
+      }
+      return `<tr><td>${code}</td><td colspan="4">${line}</td></tr>`;
     }).join('');
     return `
     <div class="order">
@@ -484,7 +496,7 @@ function exportPDF() {
         <div class="order-total">${fmt(o.total)}</div>
       </div>
       <table>
-        <thead><tr><th>Código</th><th>Produto</th><th>Qtd</th></tr></thead>
+        <thead><tr><th>Código</th><th>Produto</th><th style="text-align:center">Qtd</th><th style="text-align:right">Unit.</th><th style="text-align:right">Subtotal</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>`;
