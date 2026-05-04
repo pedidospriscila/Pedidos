@@ -241,12 +241,14 @@ async function loadAll() {
     const sheetOrders = ordRows.slice(1).map((r, i) => {
       const rawDate = r.c[0]?.v ?? '';
       const date    = parseDate(rawDate);
+      const client  = (r.c[1]?.v ?? '').toString().trim();
+      const items   = (r.c[2]?.v ?? '').toString().trim();
       return {
-        _id:    i + '_' + rawDate.toString().replace(/\W/g,''),
+        _id:   `${rawDate}_${client}_${i}`.replace(/\s/g,''),
         date,
-        client: (r.c[1]?.v ?? '').toString().trim(),
-        items:  (r.c[2]?.v ?? '').toString().trim(),
-        total:  parseFloat((r.c[3]?.v ?? '0').toString().replace(/[^\d,.]/g,'').replace(',','.')) || 0,
+        client,
+        items,
+        total: parseFloat((r.c[3]?.v ?? '0').toString().replace(/[^\d,.]/g,'').replace(',','.')) || 0,
       };
     }).filter(o => o.client);
 
@@ -501,6 +503,47 @@ function exportPDF() {
       </table>
     </div>`;
   }).join('')}
+
+  <!-- RESUMO CONSOLIDADO -->
+  ${(() => {
+    const consolidated = {};
+    filtered.forEach(o => {
+      o.items.split('\n').forEach(line => {
+        const m = line.match(/^(.+?)\s*\((\d+)×\)$/);
+        if (!m) return;
+        const name = m[1].trim();
+        const qty  = parseInt(m[2]);
+        const prod = allProducts.find(p => name.includes(p.name.substring(0,15)));
+        const code = prod ? prod.code  : '–';
+        const unit = prod ? prod.price : 0;
+        if (!consolidated[name]) consolidated[name] = { code, name, qty:0, unit };
+        consolidated[name].qty += qty;
+      });
+    });
+    const rows = Object.values(consolidated)
+      .sort((a,b) => a.name.localeCompare(b.name))
+      .map(p => {
+        const sub = p.unit > 0 ? fmt(p.unit * p.qty) : '–';
+        return `<tr>
+          <td>${p.code}</td>
+          <td>${p.name}</td>
+          <td class="num">${p.qty}</td>
+          <td class="val">${p.unit>0?fmt(p.unit):'–'}</td>
+          <td class="val">${sub}</td>
+        </tr>`;
+      }).join('');
+    const totalItens = Object.values(consolidated).reduce((s,p) => s + (p.unit>0?p.unit*p.qty:0), 0);
+    return `
+    <div style="margin-top:28px; page-break-inside:avoid">
+      <h2 style="font-size:1rem;color:#c0305f;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #f0d9e8">📦 Resumo Consolidado de Itens</h2>
+      <table>
+        <thead><tr><th>Código</th><th>Produto</th><th style="text-align:center">Qtd Total</th><th style="text-align:right">Unit.</th><th style="text-align:right">Total</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div style="text-align:right;margin-top:8px;font-weight:700;color:#c0305f;font-size:0.9rem">Total consolidado: ${fmt(totalItens)}</div>
+    </div>`;
+  })()}
+
   <div class="footer">
     <div class="footer-count">${filtered.length} pedido${filtered.length!==1?'s':''} exportado${filtered.length!==1?'s':''}</div>
     <div class="footer-total">Total geral: ${fmt(totalGeral)}</div>
