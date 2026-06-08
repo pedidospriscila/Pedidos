@@ -442,6 +442,27 @@ function exportPDF() {
   );
   if (!filtered.length) { alert('Nenhum pedido para exportar.'); return; }
 
+  // índice de produtos por nome normalizado para match robusto
+  function normalize(s) { return s.toLowerCase().replace(/[^a-z0-9]/g,''); }
+  const prodIndex = {};
+  allProducts.forEach(p => { prodIndex[normalize(p.name)] = p; });
+
+  function findProduct(itemName) {
+    const n = normalize(itemName);
+    // tentativa 1: match exato normalizado
+    if (prodIndex[n]) return prodIndex[n];
+    // tentativa 2: produto cujo nome normalizado está contido no item ou vice-versa
+    for (const p of allProducts) {
+      const pn = normalize(p.name);
+      if (n.includes(pn) || pn.includes(n)) return p;
+    }
+    // tentativa 3: match parcial de 15 chars
+    for (const p of allProducts) {
+      if (normalize(p.name.substring(0,15)) && n.includes(normalize(p.name.substring(0,15)))) return p;
+    }
+    return null;
+  }
+
   const totalGeral = filtered.reduce((s,o) => s+o.total, 0);
   const now = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
 
@@ -471,22 +492,23 @@ function exportPDF() {
   <div class="subtitle">Gerado em: ${now} · ${filtered.length} pedido${filtered.length!==1?'s':''}</div>
   ${filtered.map(o => {
     const rows = o.items.split('\n').map(line => {
-      const prodMatch = allProducts.find(p => line.includes(p.name.substring(0,20)));
-      const code      = prodMatch ? prodMatch.code  : '–';
-      const unitPrice = prodMatch ? prodMatch.price : 0;
       const m = line.match(/^(.+?)\s*\((\d+)×\)$/);
       if (m) {
-        const qty      = parseInt(m[2]);
-        const subtotal = unitPrice > 0 ? unitPrice * qty : null;
+        const itemName  = m[1].trim();
+        const qty       = parseInt(m[2]);
+        const prod      = findProduct(itemName);
+        const code      = prod ? prod.code  : '–';
+        const unitPrice = prod ? prod.price : 0;
+        const subtotal  = unitPrice > 0 ? unitPrice * qty : null;
         return `<tr>
           <td>${code}</td>
-          <td>${m[1].trim()}</td>
+          <td>${itemName}</td>
           <td class="num">${qty}</td>
           <td class="val">${unitPrice>0?fmt(unitPrice):'–'}</td>
           <td class="val">${subtotal?fmt(subtotal):'–'}</td>
         </tr>`;
       }
-      return `<tr><td>${code}</td><td colspan="4">${line}</td></tr>`;
+      return `<tr><td>–</td><td colspan="4">${line}</td></tr>`;
     }).join('');
     return `
     <div class="order">
@@ -513,7 +535,7 @@ function exportPDF() {
         if (!m) return;
         const name = m[1].trim();
         const qty  = parseInt(m[2]);
-        const prod = allProducts.find(p => name.includes(p.name.substring(0,15)));
+        const prod = findProduct(name);
         const code = prod ? prod.code  : '–';
         const unit = prod ? prod.price : 0;
         if (!consolidated[name]) consolidated[name] = { code, name, qty:0, unit };
